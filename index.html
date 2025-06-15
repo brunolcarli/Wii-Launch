@@ -102,7 +102,7 @@
     </a>
   </div>
 
-  <script>
+  <!-- <script>
     async function connectWallet() {
       if (window.solana && window.solana.isPhantom) {
         try {
@@ -113,6 +113,52 @@
         }
       } else {
         alert("Phantom Wallet not detected");
+      }
+    }
+  </script> -->
+
+  <h1>Conectar com Carteira Solana</h1>
+  <button onclick="connectWallet()">Conectar Carteira</button>
+  <div id="wallet-address"></div>
+  <div id="wallet-balance"></div>
+
+  <!-- Solana Web3.js CDN -->
+  <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
+
+  <script>
+    const { Connection, clusterApiUrl, PublicKey, LAMPORTS_PER_SOL } = solanaWeb3;
+
+    async function connectWallet() {
+      try {
+        if ("solana" in window) {
+          const provider = window.solana;
+
+          if (provider.isPhantom) {
+            // Conectar carteira
+            const response = await provider.connect();
+            const publicKey = response.publicKey.toString();
+            document.getElementById("wallet-address").textContent =
+              "Carteira conectada: " + publicKey;
+
+            // Criar conexão com a rede (devnet ou mainnet-beta)
+            const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
+
+            // Buscar saldo
+            const balance = await connection.getBalance(new PublicKey(publicKey));
+            const sol = balance / LAMPORTS_PER_SOL;
+            document.getElementById("wallet-balance").textContent =
+              "Saldo: " + sol.toFixed(4) + " SOL";
+          } else {
+            alert("Phantom Wallet não encontrada. Instale no navegador.");
+            window.open("https://phantom.app", "_blank");
+          }
+        } else {
+          alert("Carteira Solana não detectada.");
+          window.open("https://phantom.app", "_blank");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Erro ao conectar ou buscar saldo.");
       }
     }
   </script>
